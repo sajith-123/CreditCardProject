@@ -1,0 +1,213 @@
+import React, { useState } from "react";
+import Navbar from "../../components/layout/Navbar";
+import Sidebar from "../../components/layout/Sidebar";
+import "bootstrap/dist/css/bootstrap.min.css";
+ 
+// 🔑 shared global object (lives in memory only)
+export const creditScoreStore = {};
+ 
+export default function UploadDocument() {
+  const [formData, setFormData] = useState({
+    fullName: "",
+    contactNo: "",
+    aadharNo: "",
+    aadharFile: null,
+    pan: "",
+    panFile: null,
+    passportPhoto: null,
+    creditCardType: "Silver",
+    creditScore: null,
+  });
+ 
+  const [applicationId, setApplicationId] = useState("");
+  const [creditScore, setCreditScore] = useState("");
+ 
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+ 
+    if (files) {
+      setFormData({ ...formData, [name]: files[0] });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
+  };
+ 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+ 
+    localStorage.setItem("creditApplication", JSON.stringify(formData));
+ 
+    const simulatedCreditScore =
+      Math.floor(Math.random() * (850 - 300 + 1)) + 300;
+ 
+    setFormData((prev) => ({ ...prev, creditScore: simulatedCreditScore }));
+ 
+    if (applicationId) {
+      creditScoreStore[applicationId] = simulatedCreditScore;
+    }
+ 
+    alert(
+      `✅ Documents saved successfully. Bureau Credit Check initiated!
+       ApplicationID: ${applicationId || "N/A"},
+       CreditScore: ${simulatedCreditScore}`
+    );
+  };
+ 
+  return (
+    <div className="container-fluid p-0">
+      {/* Navbar at top */}
+      <Navbar />
+ 
+      <div className="row g-0">
+        {/* Sidebar on the left */}
+        <Sidebar />
+ 
+        {/* Main content area */}
+        <div className="col-12 col-md-9 col-lg-10 p-4">
+          <div className="card shadow-lg p-4">
+            <h2 className="mb-4 text-center">Upload Documents</h2>
+            <form className="credit-form" onSubmit={handleSubmit}>
+              <div className="mb-3">
+                <label className="form-label">Full Name:</label>
+                <input
+                  type="text"
+                  name="fullName"
+                  className="form-control form-control-lg"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+ 
+              <div className="mb-3">
+                <label className="form-label">Contact No:</label>
+                <input
+                  type="number"
+                  name="contactNo"
+                  className="form-control form-control-lg"
+                  value={formData.contactNo}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+ 
+              <div className="mb-3">
+                <label className="form-label">Aadhar Number:</label>
+                <input
+                  type="number"
+                  name="aadharNo"
+                  className="form-control form-control-lg"
+                  value={formData.aadharNo}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+ 
+              <div className="mb-3">
+                <label className="form-label">Aadhar Card (PDF):</label>
+                <input
+                  type="file"
+                  name="aadharFile"
+                  className="form-control"
+                  accept="application/pdf"
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+ 
+              <div className="mb-3">
+                <label className="form-label">PAN (Alphanumeric):</label>
+                <input
+                  type="text"
+                  name="pan"
+                  className="form-control form-control-lg"
+                  value={formData.pan}
+                  onChange={handleChange}
+                  pattern="[A-Za-z0-9]+"
+                  required
+                />
+              </div>
+ 
+              <div className="mb-3">
+                <label className="form-label">PAN Card (PDF):</label>
+                <input
+                  type="file"
+                  name="panFile"
+                  className="form-control"
+                  accept="application/pdf"
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+ 
+              <div className="mb-3">
+                <label className="form-label">
+                  Passport Size Photograph (JPG ≤ 200kb):
+                </label>
+                <input
+                  type="file"
+                  name="passportPhoto"
+                  className="form-control"
+                  accept="image/jpeg"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file && file.size > 200 * 1024) {
+                      alert("❌ File size must be less than 200KB");
+                      e.target.value = null;
+                      return;
+                    }
+                    handleChange(e);
+                  }}
+                  required
+                />
+              </div>
+ 
+              <div className="mb-3">
+                <label className="form-label">Credit Card Type:</label>
+                <select
+                  name="creditCardType"
+                  className="form-select form-select-lg"
+                  value={formData.creditCardType}
+                  onChange={handleChange}
+                >
+                  <option value="Silver">Silver</option>
+                  <option value="Gold">Gold</option>
+                  <option value="Platinum">Platinum</option>
+                </select>
+              </div>
+ 
+              <div className="mb-3">
+                <label className="form-label">Application ID:</label>
+                <input
+                  type="text"
+                  className="form-control form-control-lg"
+                  placeholder="Enter Application ID"
+                  value={applicationId}
+                  onChange={(e) => setApplicationId(e.target.value)}
+                />
+              </div>
+ 
+              {/* Submit button bottom-left */}
+              <div className="d-flex justify-content-start mt-4">
+                <button
+                  type="submit"
+                  className="btn btn-primary px-4 py-2 rounded-pill"
+                  style={{ fontSize: "14px" }}
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
+ 
+            {formData.creditScore && (
+              <div className="credit-score mt-4 text-center">
+                <h3>📊 Retrieved Credit Score: {formData.creditScore}</h3>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+ 
