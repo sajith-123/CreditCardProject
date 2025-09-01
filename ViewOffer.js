@@ -1,16 +1,9 @@
-// ViewOffer.js
 import React, { useState } from "react";
-import {
-  Container,
-  Form,
-  Button,
-  Card,
-  Alert,
-  Col,
-  Row,
-} from "react-bootstrap";
-// 1. Import the AcceptOffer component
-import AcceptOffer from "./AcceptOffer";
+import Navbar from "../../components/layout/Navbar";
+import Sidebar from "../../components/layout/Sidebar";
+import "bootstrap/dist/css/bootstrap.min.css";
+// You will need to create and import this component if you haven't yet
+import AcceptOffer from "./AcceptOffer"; 
 
 const mockApplicationData = {
   APP001: {
@@ -48,7 +41,7 @@ export default function ViewOffer() {
     const record = mockApplicationData[applicationId];
 
     if (!record) {
-      setError("❌ No record found for this Application ID");
+      setError(" No record found for this Application ID");
       return;
     }
 
@@ -62,96 +55,69 @@ export default function ViewOffer() {
           emailSubject
         )}&body=${encodeURIComponent(emailBody)}`
       );
+    }
+  };
+
+  const renderStatusAlert = () => {
+    if (!details) return null;
+
+    if (details.creditScore >= 750) {
+      return (
+        <div className="alert alert-success mt-3 text-center">
+          Offer Accepted! Proceed to the next step.
+        </div>
+      );
     } else {
-      console.log(
-        "Offer Accepted. Proceed to the next user story (e.g., loan processing, document signing, etc.)"
+      return (
+        <div className="alert alert-warning mt-3 text-center">
+          Offer Rejected. An email notification has been sent.
+        </div>
       );
     }
   };
 
   return (
-    <Container fluid className="d-flex justify-content-center align-items-center min-vh-100">
-      <Row className="w-100">
-        <Col md={13} lg={10} className="mx-auto">
-          <Card className="shadow-lg p-4">
-            <Card.Img
-              variant="top"
-              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ2hM9Sum3LlgYvtGHLOQZCQVxj4efOCrkqQA&s"
-              alt="SC Logo"
-              className="mx-auto d-block mb-3"
-              style={{ width: "150px" }}
-            />
-            <Card.Title
-              className="text-center mb-4"
-              style={{ color: "#007c4d" }}
+    <div className="container-fluid p-0">
+      <Navbar />
+      <div className="row g-0">
+        <Sidebar />
+        <div className="col-12 col-md-9 col-lg-10 p-4">
+          <div className="card shadow-lg p-4">
+            <h2 className="mb-4 text-center">View Offer</h2>
+            <div className="mb-3">
+              <label className="form-label">Application ID:</label>
+              <input
+                type="text"
+                className="form-control form-control-lg"
+                placeholder="Enter Application ID"
+                value={applicationId}
+                onChange={(e) => setApplicationId(e.target.value)}
+              />
+            </div>
+            <button
+              className="btn btn-success w-100 mb-3"
+              onClick={handleCheckOffer}
             >
-              View Offer
-            </Card.Title>
-
-            <Form>
-              <Form.Group className="mb-3" controlId="applicationIdInput">
-                <Form.Label>Application ID:</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter Application ID"
-                  value={applicationId}
-                  onChange={(e) => setApplicationId(e.target.value)}
-                />
-              </Form.Group>
-
-              <Button
-                variant="success"
-                className="w-100 mb-3"
-                onClick={handleCheckOffer}
-              >
-                Check Offer
-              </Button>
-            </Form>
-
-            {error && <Alert variant="danger">{error}</Alert>}
-
+              Check Offer
+            </button>
+            {error && (
+              <div className="alert alert-danger text-center">{error}</div>
+            )}
             {details && (
               <div className="credit-score mt-4">
-                <p>
-                  <b>Application ID:</b> {details.applicationId}
-                </p>
-                <p>
-                  <b>Name:</b> {details.fullName}
-                </p>
-                <p>
-                  <b>Email:</b> {details.email}
-                </p>
-                <p>
-                  <b>PAN:</b> {details.pan}
-                </p>
-                <p>
-                  <b>Credit Score:</b> {details.creditScore}
-                </p>
-                <p>
-                  <b>Status:</b>{" "}
-                  {details.creditScore >= 750 ? "✅ Approved" : "❌ Rejected"}
-                </p>
+                <p><b>Application ID:</b> {details.applicationId}</p>
+                <p><b>Name:</b> {details.fullName}</p>
+                <p><b>Email:</b> {details.email}</p>
+                <p><b>PAN:</b> {details.pan}</p>
+                <p><b>Credit Score:</b> {details.creditScore}</p>
+                <p><b>Status:</b> {details.creditScore >= 750 ? " Approved" : " Rejected"}</p>
               </div>
             )}
-
-            {details && details.creditScore >= 750 && (
-              <Alert variant="success" className="mt-3">
-                Offer Accepted! Congratulations. Proceed to the next step.
-              </Alert>
-            )}
-
-            {details && details.creditScore < 750 && (
-              <Alert variant="warning" className="mt-3">
-                Offer Rejected. An email notification has been sent.
-              </Alert>
-            )}
-
-            {/* 2. Conditionally render AcceptOffer component */}
+            {renderStatusAlert()}
             {details && details.creditScore >= 750 && <AcceptOffer />}
-          </Card>
-        </Col>
-      </Row>
-    </Container>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
-
